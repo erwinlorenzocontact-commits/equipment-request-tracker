@@ -41,6 +41,7 @@ test("createRequest trims input and adds system fields", () => {
     requester: "Jordan Lee",
     department: "Operations",
     equipment: "Laptop",
+    priority: "Medium",
     neededBy: "2026-09-15",
     reason: "Replace a failed field computer.",
     createdAt: "2026-08-17T12:00:00.000Z",
@@ -83,4 +84,49 @@ test("loadRequests safely handles damaged stored data", () => {
   storage.setItem(STORAGE_KEY, "not-json");
 
   assert.deepEqual(loadRequests(storage), []);
+});
+
+test("each supported priority survives a storage round-trip", () => {
+  const storage = new MemoryStorage();
+  const requests = ["Low", "Medium", "High"].map((priority) =>
+    createRequest({ ...validInput, priority }),
+  );
+
+  saveRequests(requests, storage);
+
+  assert.deepEqual(loadRequests(storage), requests);
+});
+
+test("createRequest rejects empty and unsupported priorities", () => {
+  for (const priority of ["", "Urgent", "high", 1]) {
+    assert.throws(
+      () => createRequest({ ...validInput, priority }),
+      (error) => {
+        assert.ok(error instanceof RequestValidationError);
+        assert.deepEqual(Object.keys(error.errors), ["priority"]);
+        return true;
+      },
+    );
+  }
+});
+
+test("legacy requests load as Medium without losing data or order", () => {
+  const storage = new MemoryStorage();
+  const first = createRequest(validInput, { id: "first" });
+  const second = createRequest(validInput, { id: "second" });
+  delete first.priority;
+  delete second.priority;
+  const legacy = [second, first];
+  const original = JSON.stringify(legacy);
+  storage.setItem(STORAGE_KEY, original);
+
+  const loaded = loadRequests(storage);
+
+  assert.deepEqual(loaded, legacy.map((request) => ({ ...request, priority: "Medium" })));
+  assert.equal(storage.getItem(STORAGE_KEY), original);
+  const added = createRequest({ ...validInput, priority: "High" }, { id: "new" });
+  const updated = appendRequest(loaded, added);
+  saveRequests(updated, storage);
+  assert.deepEqual(loadRequests(storage), updated);
+  assert.deepEqual(updated.map((request) => request.id), ["new", "second", "first"]);
 });
