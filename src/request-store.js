@@ -1,4 +1,6 @@
 export const STORAGE_KEY = "mis4173-equipment-requests";
+const PRIORITIES = ["Low", "Medium", "High"];
+const DEFAULT_PRIORITY = "Medium";
 
 export class RequestValidationError extends Error {
   constructor(errors) {
@@ -20,6 +22,9 @@ export function validateRequest(input = {}) {
   if (!clean(input.equipment)) errors.equipment = "Enter the equipment needed.";
   if (!clean(input.neededBy)) errors.neededBy = "Select the date needed.";
   if (!clean(input.reason)) errors.reason = "Enter a business reason.";
+  if (!PRIORITIES.includes(input.priority ?? DEFAULT_PRIORITY)) {
+    errors.priority = "Select Low, Medium, or High priority.";
+  }
 
   return errors;
 }
@@ -42,6 +47,7 @@ export function createRequest(input, options = {}) {
     requester: clean(input.requester),
     department: clean(input.department),
     equipment: clean(input.equipment),
+    priority: input.priority ?? DEFAULT_PRIORITY,
     neededBy: clean(input.neededBy),
     reason: clean(input.reason),
     createdAt: now.toISOString(),
@@ -60,7 +66,12 @@ export function loadRequests(storage = globalThis.localStorage) {
     if (!stored) return [];
 
     const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed.filter(isRequestRecord) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter(isRequestRecord).map((request) => ({
+          ...request,
+          priority: PRIORITIES.includes(request.priority) ? request.priority : DEFAULT_PRIORITY,
+        }))
+      : [];
   } catch {
     return [];
   }

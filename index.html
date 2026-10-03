@@ -67,6 +67,15 @@
           </div>
 
           <div class="field">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority" required>
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+
+          <div class="field">
             <label for="reason">Business reason</label>
             <textarea
               id="reason"
@@ -107,6 +116,7 @@
                 <th scope="col">Requester</th>
                 <th scope="col">Department</th>
                 <th scope="col">Equipment</th>
+                <th scope="col">Priority</th>
                 <th scope="col">Needed by</th>
                 <th scope="col">Business reason</th>
                 <th scope="col">Submitted</th>
