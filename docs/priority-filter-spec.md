@@ -108,6 +108,44 @@ The scenarios below define verification requirements. See docs/priority-filter-t
 | AC-19 | An explicit close action is performed. | The request is marked closed and therefore completed; the record is preserved across reloads. |
 | AC-20 | The application runs using the existing local setup. | The feature requires no login, database, or external service. |
 
+## Verification Results
+
+Verified implementation: [2386886](https://github.com/erwinlorenzocontact-commits/equipment-request-tracker/commit/23868860d4447469d21983f2a193f2b5e361d9bc) on `exercise-6-specification`.
+
+**Overall: Pass — 20 of 20 acceptance criteria passed.** These results record the implementation verification already performed; this documentation-only update does not represent a new test run.
+
+- Automated: `node --test` passed **31 tests**, including the eight existing regression tests. npm was unavailable, so its configured test command was run directly.
+- Syntax: `node --check src/app.js` and `node --check src/request-store.js` passed.
+- Browser: normal submission/reset, unfinished-attempt restoration, category order, aged fixtures, recovery validation, persisted recovery, keyboard closure, and literal rendering of HTML-like input were checked on an isolated local test origin.
+- Exact 72-hour and 14-day boundaries were tested with a controlled clock; browser checks used pre-aged fixtures.
+
+| Criterion | Result | Verification evidence |
+| --- | --- | --- |
+| AC-01 | Pass | Legacy and storage round-trip tests preserve existing fields, priority values, unknown metadata, and the Medium fallback; legacy data remained visible after browser reload. |
+| AC-02 | Pass | Category-order test and browser headings confirm separate High, Unavailable, Failed, Medium, Invalid, Low, Duplicate, Discarded, and Closed sections. |
+| AC-03 | Pass | Overlap tests and browser fixtures confirm High overrides active categories after the visibility delay has elapsed. |
+| AC-04 | Pass | Precedence tests cover Unavailable over Failed, the Low duplicate exception, Failed/Invalid precedence within that exception, and no duplicate override for Medium. Browser placement matched. |
+| AC-05 | Pass | Date-order tests and the browser's Low earlier/Low later fixtures confirm earliest needed-by dates first. |
+| AC-06 | Pass | Sorting tests cover missing and invalid dates, dated-first placement, oldest-first creation order, and deterministic ties; Failed older precedes Failed newer in the browser. |
+| AC-07 | Pass | Draft tests cover persistence, leaving the form, edit resets, and visibility immediately before/at 72 hours. A partial browser request restored after reload without appearing in the manager list before expiry. |
+| AC-08 | Pass | Incomplete-submission tests confirm saved attempts, no successful-submission state, and the 72-hour delay; browser submission/reload confirmed restoration while hidden. |
+| AC-09 | Pass | Tests cover incorrect departments, impossible dates, reason length, Invalid placement, and incompleteness as Failed. The invalid browser fixture appears in Invalid. |
+| AC-10 | Pass | Availability tests cover matching equipment/date, self-exclusion, inactive/hidden exclusions, High precedence, and the Low duplicate exception. Browser fixtures confirm Unavailable placement. |
+| AC-11 | Pass | Matching tests cover case/whitespace normalization and the oldest original despite newest-first storage; the normalized browser fixture enters Duplicate. |
+| AC-12 | Pass | Tests confirm different equipment, different dates, missing/invalid dates, and self-comparisons do not establish a match. |
+| AC-13 | Pass | Controlled-clock tests confirm the clock starts at identification and the duplicate remains active immediately before 14 days; identification metadata survives storage round-trips and reload. |
+| AC-14 | Pass | Exact-deadline tests retain the record while moving it to Discarded. The pre-aged browser fixture moves to Discarded without being completed. |
+| AC-15 | Pass | Tests reject missing/unsupported recovery choices. Browser recovery without a choice is refused and focuses the labeled priority selector. |
+| AC-16 | Pass | Recovery tests cover Low, Medium, and High while retaining data. Browser Low recovery survives reload and follows the remaining Unavailable conflict. |
+| AC-17 | Pass | Future-clock and round-trip tests confirm the permanent recovery exemption; the recovered browser request stays outside Duplicate after reload. |
+| AC-18 | Pass | Lifecycle tests confirm priority selection, discard, and recovery do not set a closure timestamp. Browser discarded/recovered records remain incomplete until explicitly closed. |
+| AC-19 | Pass | Closure tests preserve data and timestamps through storage. Keyboard activation of Close request moves the recovered browser record to Closed and survives reload. |
+| AC-20 | Pass | Local server/browser verification and dependency inspection confirm no login, database, external service, or new production dependency is required. |
+
+Detailed test instructions and evidence are in [priority-filter-testing.md](priority-filter-testing.md). Automated coverage is in [priority-filter.test.js](../tests/priority-filter.test.js), [priority-lifecycle.test.js](../tests/priority-lifecycle.test.js), and the unchanged [request-store.test.js](../tests/request-store.test.js).
+
+Verification limits: data remains local to the browser profile and origin; deadlines are evaluated when the app opens, refreshes, gains focus, or becomes visible. The existing Windows development-server root-path issue remains outside this change; use `/index.html` for local browser checks.
+
 ## Out of Scope
 
 - Authentication, manager accounts, role enforcement, server-side storage, or shared access across devices.
