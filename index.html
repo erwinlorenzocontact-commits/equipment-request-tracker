@@ -108,23 +108,8 @@
           <p>Add the first equipment request using the form.</p>
         </div>
 
-        <div id="request-table-wrapper" class="table-wrapper" hidden>
-          <table>
-            <caption class="sr-only">Submitted equipment requests</caption>
-            <thead>
-              <tr>
-                <th scope="col">Requester</th>
-                <th scope="col">Department</th>
-                <th scope="col">Equipment</th>
-                <th scope="col">Priority</th>
-                <th scope="col">Needed by</th>
-                <th scope="col">Business reason</th>
-                <th scope="col">Submitted</th>
-              </tr>
-            </thead>
-            <tbody id="request-table-body"></tbody>
-          </table>
-        </div>
+        <p id="list-message" role="status" aria-live="polite" tabindex="-1"></p>
+        <div id="request-sections"></div>
       </section>
     </main>
 
@@ -137,3 +122,4 @@
     <script type="module" src="src/app.js"></script>
   </body>
 </html>
+

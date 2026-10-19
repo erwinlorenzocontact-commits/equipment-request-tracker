@@ -231,6 +231,35 @@ button:hover {
   overflow-x: auto;
 }
 
+.request-category {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.request-category h3 {
+  margin-bottom: 0.5rem;
+  color: var(--purple-dark);
+}
+
+.category-empty {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.request-actions {
+  min-width: 180px;
+}
+
+.request-actions button,
+.request-actions select {
+  margin-top: 0.5rem;
+}
+
+[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -316,3 +345,4 @@ tbody tr:hover {
     align-self: flex-start;
   }
 }
+
