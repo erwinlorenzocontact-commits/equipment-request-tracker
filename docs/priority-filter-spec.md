@@ -20,15 +20,16 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
    | Rank | Category |
    | --- | --- |
    | 1 | High |
-   | 2 | Failed submissions and unavailable equipment (equal rank) |
-   | 3 | Medium |
-   | 4 | Invalid |
-   | 5 | Low |
-   | 6 | Duplicate |
+   | 2 | Unavailable equipment (equal rank) |
+   | 3 | Failed submissions |
+   | 4 | Medium |
+   | 5 | Invalid |
+   | 6 | Low |
+   |  | Duplicate |
 
-3. When categories overlap, the highest-ranked applicable category wins. High explicitly overrides every other category.
-4. Failed submissions and unavailable equipment have equal attention rank; neither has an approved precedence over the other.
-5. Keep priority choice, failure/validation information, duplicate history, and closure information available without overwriting the original request details.
+4. When categories overlap, the highest-ranked applicable category wins. High explicitly overrides every other category.
+5. Failed submissions and unavailable equipment have equal attention rank; neither has an approved precedence over the other.
+6. Keep priority choice, failure/validation information, duplicate history, and closure information available without overwriting the original request details.
 
 ### Ordering within sections
 
