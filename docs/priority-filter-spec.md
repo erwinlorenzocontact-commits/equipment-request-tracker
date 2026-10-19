@@ -27,7 +27,7 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
    | 6 | Low |
    | 7 | Duplicate |
 
-4. When categories overlap, the highest-ranked applicable category wins, except that duplicate matching overrides Low placement as defined in rule 21. High explicitly overrides every other category.
+4. When categories overlap, the highest-ranked applicable category wins, except that eligible Low-priority duplicates bypass both Low and Unavailable placement as defined in rule 21. High explicitly overrides every other category.
 5. Unavailable equipment ranks below High and above Failed submissions. Failed submissions rank below Unavailable equipment and above Medium.
 6. Keep priority choice, failure/validation information, duplicate history, and closure information available without overwriting the original request details.
 
@@ -57,7 +57,7 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
 
 19. Identify duplicates using the equipment and needed-by date of an existing request.
 20. Ignore capitalization and extra spaces when comparing equipment names. Other fields, including requester and department, do not determine duplicate identity.
-21. Display the Duplicate section below Low. Duplicate matching overrides Low placement but does not override Medium or High. A matching Low-priority request enters Duplicate only if no higher-ranked category applies and it has no recovery exemption. Matching Medium- and High-priority requests remain subject to their existing priority and higher-ranked applicable categories.
+21. Display the Duplicate section below Low. For a Low-priority duplicate without a recovery exemption, bypass Unavailable placement and use Duplicate instead of Low, unless Failed or Invalid applies. This explicit exception allows its two-week discard lifecycle to operate despite the matching equipment/date availability conflict. Duplicate matching does not override Medium or High. Matching Medium- and High-priority requests remain subject to their existing priority and higher-ranked applicable categories. Recovered requests never use this duplicate exception.
 22. Start the two-week timer when the request is identified as a duplicate, not when it was created.
 23. After two weeks, move an eligible duplicate to a separate Discarded section.
 24. Discarding retains the record. Discarded requests remain viewable and recoverable.
@@ -81,7 +81,7 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
 
 The following decisions must be resolved before the affected behavior can be implemented and fully accepted:
 
-- **Availability and duplicate overlap:** Both use matching equipment and needed-by date. With the current precedence, a non-High duplicate also qualifies as Unavailable, which outranks Duplicate. Define whether this is intended or whether duplicate matches are an exception to Unavailable placement so the Duplicate and discard lifecycle can operate. Also define which existing request statuses participate in availability checks.
+- **Availability boundaries:** Define which existing request statuses participate in availability checks. The Low-priority duplicate exception to Unavailable placement is approved and defined in rule 21.
 - **Delay measurement:** Define exactly what counts as leaving the form, the starting event for an attempted incomplete submission, whether returning/editing resets the delay, and whether three days/two weeks mean elapsed hours or calendar days.
 - **Validation and duplicate boundaries:** Define field-specific incorrect-input rules, how missing/invalid dates affect duplicate matching, and which record remains the original when several records match.
 - **Presentation boundaries:** Define placement of undated requests relative to dated requests and tie-breaking. If Failed and Unavailable both apply, Unavailable wins unless High applies.
@@ -96,13 +96,13 @@ The scenarios below are requirements for future verification, not claims that th
 | AC-01 | Existing requests are present before the feature is introduced, and the app is opened and reloaded afterward. | All existing requests and their information remain readable. Existing priorities remain intact; missing legacy priority defaults to Medium. |
 | AC-02 | Requests qualifying for the approved categories are visible. | Managers see separate sections ordered High, Unavailable, Failed, Medium, Invalid, Low, Duplicate, with a separate Discarded section. |
 | AC-03 | A request qualifies as High and also matches another active category. | It appears in High. |
-| AC-04 | A non-High request matches multiple categories. | The highest-ranked applicable category wins, with Duplicate overriding Low only. A matching Low request with no higher-ranked category or recovery exemption appears in Duplicate; a matching Medium request stays in Medium unless a higher-ranked category applies. Unavailable wins over Failed. |
+| AC-04 | A non-High request matches multiple categories. | Apply the ranking with the explicit Low-priority duplicate exception: an eligible Low duplicate without a recovery exemption bypasses Unavailable and appears in Duplicate unless Failed or Invalid applies. Matching Medium requests receive no duplicate override; High always wins. Outside the Low duplicate exception, Unavailable wins over Failed. |
 | AC-05 | Requests in one section have different valid needed-by dates. | Earlier needed-by dates appear before later dates. |
 | AC-06 | Multiple requests in one section have missing or invalid needed-by dates. | Those requests are ordered by creation time, oldest first. Placement relative to dated requests follows the decision recorded in Constraints. |
 | AC-07 | A user starts an incomplete request, leaves the form, and does not submit it. | Its available data is retained across reloads. It is not manager-visible before the three-day deadline and becomes visible at or after that deadline when the app evaluates it. Incompleteness qualifies it as Failed, subject to High precedence. |
 | AC-08 | A user attempts to submit an incomplete request. | The attempt is retained and follows the three-day visibility delay. It qualifies as Failed rather than merely Invalid and is not treated as a successful ordinary submission. |
 | AC-09 | A request has incorrectly filled information without incompleteness and no higher-ranked category applies. | It appears in Invalid, above Low and below Medium. Field-specific validation must first be defined. |
-| AC-10 | Another existing request matches the requested equipment and needed-by date, and no High override applies. | The request qualifies as Unavailable, below High and above Failed. The request must not match itself. Different equipment or a different needed-by date does not establish unavailability. Final placement for duplicate matches depends on the overlap decision in Constraints. |
+| AC-10 | Another existing request matches the requested equipment and needed-by date, and no High override applies. | The request qualifies as Unavailable, below High and above Failed. The request must not match itself. Different equipment or a different needed-by date does not establish unavailability. Eligible Low-priority duplicates without a recovery exemption bypass Unavailable and follow rule 21; Medium requests do not receive this exception and High requests remain High. |
 | AC-11 | Two requests have the same valid needed-by date and equivalent equipment names differing only in capitalization or extra spaces. | They match the duplicate definition; the original and duplicate are identified using the approved original-selection rule. |
 | AC-12 | Equipment names differ or valid needed-by dates differ. | The requests do not match each other under the duplicate rule. |
 | AC-13 | An eligible duplicate has been identified and its two-week deadline has not passed. | It remains in Duplicate; the clock is based on identification time. |
