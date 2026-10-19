@@ -51,7 +51,7 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
 
 16. Determine equipment availability from existing requests, rather than a separate equipment list or a manager manually assigning unavailability.
 17. Unavailable equipment ranks below High and above Failed submissions.
-18. Existing requests are the availability data source. The rule for deriving unavailability from those requests still needs definition, including which request statuses and dates create a conflict. Do not infer inventory quantities or assume that any existing request makes equipment unavailable.
+18. Equipment is unavailable when another existing request matches the equipment and needed-by date. A request does not conflict with itself. A different equipment name or needed-by date does not establish unavailability under this rule. Which request statuses participate remains to be decided; do not infer inventory quantities.
 
 ### Duplicate identification and discard
 
@@ -81,7 +81,7 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
 
 The following decisions must be resolved before the affected behavior can be implemented and fully accepted:
 
-- **Availability calculation:** The source is existing requests. Define when another request makes equipment unavailable, including equipment matching, relevant dates, applicable statuses, and treatment of the request being evaluated. Define how availability conflicts differ from duplicate matches.
+- **Availability and duplicate overlap:** Both use matching equipment and needed-by date. With the current precedence, a non-High duplicate also qualifies as Unavailable, which outranks Duplicate. Define whether this is intended or whether duplicate matches are an exception to Unavailable placement so the Duplicate and discard lifecycle can operate. Also define which existing request statuses participate in availability checks.
 - **Delay measurement:** Define exactly what counts as leaving the form, the starting event for an attempted incomplete submission, whether returning/editing resets the delay, and whether three days/two weeks mean elapsed hours or calendar days.
 - **Validation and duplicate boundaries:** Define field-specific incorrect-input rules, how missing/invalid dates affect duplicate matching, and which record remains the original when several records match.
 - **Presentation boundaries:** Define placement of undated requests relative to dated requests and tie-breaking. If Failed and Unavailable both apply, Unavailable wins unless High applies.
@@ -102,7 +102,7 @@ The scenarios below are requirements for future verification, not claims that th
 | AC-07 | A user starts an incomplete request, leaves the form, and does not submit it. | Its available data is retained across reloads. It is not manager-visible before the three-day deadline and becomes visible at or after that deadline when the app evaluates it. Incompleteness qualifies it as Failed, subject to High precedence. |
 | AC-08 | A user attempts to submit an incomplete request. | The attempt is retained and follows the three-day visibility delay. It qualifies as Failed rather than merely Invalid and is not treated as a successful ordinary submission. |
 | AC-09 | A request has incorrectly filled information without incompleteness and no higher-ranked category applies. | It appears in Invalid, above Low and below Medium. Field-specific validation must first be defined. |
-| AC-10 | Existing requests establish that requested equipment is unavailable under the availability calculation to be defined, and no High override applies. | The request receives Unavailable classification, below High and above Failed. This scenario requires an agreed request-based availability calculation before acceptance. |
+| AC-10 | Another existing request matches the requested equipment and needed-by date, and no High override applies. | The request qualifies as Unavailable, below High and above Failed. The request must not match itself. Different equipment or a different needed-by date does not establish unavailability. Final placement for duplicate matches depends on the overlap decision in Constraints. |
 | AC-11 | Two requests have the same valid needed-by date and equivalent equipment names differing only in capitalization or extra spaces. | They match the duplicate definition; the original and duplicate are identified using the approved original-selection rule. |
 | AC-12 | Equipment names differ or valid needed-by dates differ. | The requests do not match each other under the duplicate rule. |
 | AC-13 | An eligible duplicate has been identified and its two-week deadline has not passed. | It remains in Duplicate; the clock is based on identification time. |
