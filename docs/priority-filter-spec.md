@@ -20,15 +20,15 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
    | Rank | Category |
    | --- | --- |
    | 1 | High |
-   | 2 | Unavailable equipment (equal rank) |
+   | 2 | Unavailable equipment |
    | 3 | Failed submissions |
    | 4 | Medium |
    | 5 | Invalid |
    | 6 | Low |
-   |  | Duplicate |
+   | 7 | Duplicate |
 
-4. When categories overlap, the highest-ranked applicable category wins. High explicitly overrides every other category.
-5. Failed submissions and unavailable equipment have equal attention rank; neither has an approved precedence over the other.
+4. When categories overlap, the highest-ranked applicable category wins, except that duplicate matching overrides Low placement as defined in rule 21. High explicitly overrides every other category.
+5. Unavailable equipment ranks below High and above Failed submissions. Failed submissions rank below Unavailable equipment and above Medium.
 6. Keep priority choice, failure/validation information, duplicate history, and closure information available without overwriting the original request details.
 
 ### Ordering within sections
@@ -49,15 +49,15 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
 
 ### Equipment availability
 
-16. Determine unavailable equipment from the existing equipment list, rather than a manager manually assigning unavailability.
-17. Unavailable equipment ranks below High and above Medium.
-18. The current branch does not contain an equipment availability list or availability data source. Identifying that source and its availability fields is a prerequisite to implementation; this document does not invent inventory data.
+16. Determine equipment availability from existing requests, rather than a separate equipment list or a manager manually assigning unavailability.
+17. Unavailable equipment ranks below High and above Failed submissions.
+18. Existing requests are the availability data source. The rule for deriving unavailability from those requests still needs definition, including which request statuses and dates create a conflict. Do not infer inventory quantities or assume that any existing request makes equipment unavailable.
 
 ### Duplicate identification and discard
 
 19. Identify duplicates using the equipment and needed-by date of an existing request.
 20. Ignore capitalization and extra spaces when comparing equipment names. Other fields, including requester and department, do not determine duplicate identity.
-21. Duplicate requests rank below Low, subject to the category precedence rule above.
+21. Display the Duplicate section below Low. Duplicate matching overrides Low placement but does not override Medium or High. A matching Low-priority request enters Duplicate only if no higher-ranked category applies and it has no recovery exemption. Matching Medium- and High-priority requests remain subject to their existing priority and higher-ranked applicable categories.
 22. Start the two-week timer when the request is identified as a duplicate, not when it was created.
 23. After two weeks, move an eligible duplicate to a separate Discarded section.
 24. Discarding retains the record. Discarded requests remain viewable and recoverable.
@@ -81,11 +81,10 @@ Managers need separate, ordered sections that identify urgent, failed, unavailab
 
 The following decisions must be resolved before the affected behavior can be implemented and fully accepted:
 
-- **Duplicate precedence conflict:** Every ordinary request already has Low, Medium, or High priority, each ranked above Duplicate. Literal application would prevent these requests from entering Duplicate. Decide whether duplicate classification replaces the Low/Medium placement while retaining High as an override, or whether the literal ranking is intended. Do not silently choose either interpretation.
-- **Equipment source:** Identify the equipment list, matching method, and availability field. Define behavior for equipment absent from that list.
+- **Availability calculation:** The source is existing requests. Define when another request makes equipment unavailable, including equipment matching, relevant dates, applicable statuses, and treatment of the request being evaluated. Define how availability conflicts differ from duplicate matches.
 - **Delay measurement:** Define exactly what counts as leaving the form, the starting event for an attempted incomplete submission, whether returning/editing resets the delay, and whether three days/two weeks mean elapsed hours or calendar days.
 - **Validation and duplicate boundaries:** Define field-specific incorrect-input rules, how missing/invalid dates affect duplicate matching, and which record remains the original when several records match.
-- **Presentation boundaries:** Define placement of undated requests relative to dated requests, tie-breaking, and presentation when Failed and Unavailable both apply.
+- **Presentation boundaries:** Define placement of undated requests relative to dated requests and tie-breaking. If Failed and Unavailable both apply, Unavailable wins unless High applies.
 - **Lifecycle boundaries:** Define who can close requests in the login-free interface, where closed requests appear, and whether closed/discarded records participate in duplicate matching. Closure must preserve the request.
 
 ## Acceptance Criteria
@@ -95,15 +94,15 @@ The scenarios below are requirements for future verification, not claims that th
 | ID | Given / When | Expected result |
 | --- | --- | --- |
 | AC-01 | Existing requests are present before the feature is introduced, and the app is opened and reloaded afterward. | All existing requests and their information remain readable. Existing priorities remain intact; missing legacy priority defaults to Medium. |
-| AC-02 | Requests qualifying for the approved categories are visible. | Managers see separate sections ordered High, Failed/Unavailable, Medium, Invalid, Low, Duplicate, with a separate Discarded section. |
+| AC-02 | Requests qualifying for the approved categories are visible. | Managers see separate sections ordered High, Unavailable, Failed, Medium, Invalid, Low, Duplicate, with a separate Discarded section. |
 | AC-03 | A request qualifies as High and also matches another active category. | It appears in High. |
-| AC-04 | A non-High request matches multiple categories. | The highest-ranked applicable category wins, with duplicate precedence and equal-rank handling resolved as described in Constraints. |
+| AC-04 | A non-High request matches multiple categories. | The highest-ranked applicable category wins, with Duplicate overriding Low only. A matching Low request with no higher-ranked category or recovery exemption appears in Duplicate; a matching Medium request stays in Medium unless a higher-ranked category applies. Unavailable wins over Failed. |
 | AC-05 | Requests in one section have different valid needed-by dates. | Earlier needed-by dates appear before later dates. |
 | AC-06 | Multiple requests in one section have missing or invalid needed-by dates. | Those requests are ordered by creation time, oldest first. Placement relative to dated requests follows the decision recorded in Constraints. |
 | AC-07 | A user starts an incomplete request, leaves the form, and does not submit it. | Its available data is retained across reloads. It is not manager-visible before the three-day deadline and becomes visible at or after that deadline when the app evaluates it. Incompleteness qualifies it as Failed, subject to High precedence. |
 | AC-08 | A user attempts to submit an incomplete request. | The attempt is retained and follows the three-day visibility delay. It qualifies as Failed rather than merely Invalid and is not treated as a successful ordinary submission. |
 | AC-09 | A request has incorrectly filled information without incompleteness and no higher-ranked category applies. | It appears in Invalid, above Low and below Medium. Field-specific validation must first be defined. |
-| AC-10 | The approved equipment list marks requested equipment unavailable, and no High override applies. | The request receives Unavailable classification, below High and above Medium. |
+| AC-10 | Existing requests establish that requested equipment is unavailable under the availability calculation to be defined, and no High override applies. | The request receives Unavailable classification, below High and above Failed. This scenario requires an agreed request-based availability calculation before acceptance. |
 | AC-11 | Two requests have the same valid needed-by date and equivalent equipment names differing only in capitalization or extra spaces. | They match the duplicate definition; the original and duplicate are identified using the approved original-selection rule. |
 | AC-12 | Equipment names differ or valid needed-by dates differ. | The requests do not match each other under the duplicate rule. |
 | AC-13 | An eligible duplicate has been identified and its two-week deadline has not passed. | It remains in Duplicate; the clock is based on identification time. |
