@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8">
+  <title>Priority feature browser fixtures</title>
+  <h1>Priority feature browser fixtures</h1>
+  <p>This replaces the equipment tracker data in this browser's storage for this origin.
+    Use a separate test port, for example 8007, so your real requests are preserved.</p>
+  <button id="load" type="button">Load test fixtures</button>
+  <script type="module">
+    import { DAY, STORAGE_KEY } from "../src/request-store.js";
+    document.querySelector("#load").addEventListener("click", () => {
+      const now = Date.now();
+      const ago = (days) => new Date(now - days * DAY).toISOString();
+      const request = (id, overrides = {}) => ({
+        id, requester: id, department: "Operations", equipment: id,
+        neededBy: "2026-12-01", priority: "Low", reason: "Browser fixture",
+        createdAt: ago(30), ...overrides,
+      });
+      const legacy = request("Legacy request", { equipment: "Legacy laptop" });
+      delete legacy.priority;
+      const records = [
+        request("High request", { priority: "High", equipment: "Shared laptop" }),
+        request("Original request", { equipment: "Shared laptop", createdAt: ago(31) }),
+        request("Active duplicate", { equipment: "  shared  LAPTOP ", createdAt: ago(10) }),
+        request("Aged duplicate", {
+          equipment: "Shared laptop", createdAt: ago(20), duplicateIdentifiedAt: ago(15),
+        }),
+        request("Failed older", { reason: "", neededBy: "", submissionState: "attempt", delayStartedAt: ago(4), createdAt: ago(32) }),
+        request("Failed newer", { reason: "", neededBy: "", submissionState: "attempt", delayStartedAt: ago(4) }),
+        legacy,
+        request("Invalid department", { department: "Unknown" }),
+        request("Low later", { neededBy: "2026-12-02" }),
+        request("Low earlier", { neededBy: "2026-11-01" }),
+        request("<img src=x onerror=alert(1)>", { priority: "High", neededBy: "2026-11-02" }),
+        request("Closed request", { closedAt: ago(1) }),
+      ];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+      location.href = "../index.html";
+    });
+  </script>
+</html>
