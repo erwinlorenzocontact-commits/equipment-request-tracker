@@ -59,10 +59,12 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   clearFieldErrors();
   try {
-    const draft = saveDraft();
+    const previous = requests.find((request) => request.id === draftId);
+    const draft = createDraft(formInput(), previous);
     const errors = validateRequest(draft);
     const submitted = submitDraft(draft);
     commit(upsertRequest(requests, submitted));
+    draftId = submitted.id;
     if (submitted.submissionState === "attempt") {
       showFieldErrors(errors);
       setMessage("Complete all required fields. This attempt is saved and becomes manager-visible after three days.", true);
@@ -266,4 +268,3 @@ function setMessage(text, isError = false) {
   message.textContent = text;
   message.classList.toggle("error", isError);
 }
-
